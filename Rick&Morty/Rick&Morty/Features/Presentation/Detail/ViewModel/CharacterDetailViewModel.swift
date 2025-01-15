@@ -16,7 +16,7 @@ final class CharacterDetailViewModel: ObservableObject {
     private let detailUseCase: FetchCharacterDetailUseCaseProtocol
     
     @Published var isLoading: Bool = false
-    @Published var errorMessage: String?
+    @Published var error: NetworkError?
     
     init(id: Int,
          detailUseCase: FetchCharacterDetailUseCaseProtocol = DefaultFetchCharacterDetailUseCase()) {
@@ -26,13 +26,14 @@ final class CharacterDetailViewModel: ObservableObject {
     
     func fetchCharacter() async {
         isLoading = true
-        errorMessage = nil
         
         do {
             let characterEntity = try await detailUseCase.execute(with: id)
             character = characterEntity.toDetailViewModel()
+        } catch let error as NetworkError {
+            self.error = error
         } catch {
-            errorMessage = "Failed to load character: \(error.localizedDescription)"
+            self.error = .networkError(error)
         }
         
         isLoading = false

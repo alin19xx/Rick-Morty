@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct CharacterDetailView: View {
+    @Environment(\.colorScheme) var colorScheme
     
     @StateObject var viewModel: CharacterDetailViewModel
     
@@ -16,10 +17,25 @@ struct CharacterDetailView: View {
     }
     
     var body: some View {
-        VStack {
-            if let character = viewModel.character {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 16) {
+        ZStack {
+            contentView
+        }
+        .errorAlert(error: $viewModel.error)
+        .task { await viewModel.fetchCharacter() }
+    }
+}
+
+
+// MARK: - Accessory Views
+
+extension CharacterDetailView {
+    
+    @ViewBuilder
+    private var contentView: some View {
+        if let character = viewModel.character {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    ZStack {
                         CachedAsyncImage(url: character.imageUrl) {
                             ProgressView()
                         } content: { image in
@@ -28,39 +44,59 @@ struct CharacterDetailView: View {
                                 .aspectRatio(contentMode: .fit)
                                 .frame(maxWidth: .infinity, maxHeight: .infinity)
                         }
-                        Group {
-                            Text(character.name)
-                                .font(.largeTitle)
-                                .bold()
-                            
-                            Text("Status: \(character.status)")
-                                .font(.title3)
-                                .foregroundColor(.gray)
-                            
-                            Text("Species: \(character.species)")
-                                .font(.title3)
-                                .foregroundColor(.gray)
-                            
-                            Text("Gender: \(character.gender)")
-                                .font(.title3)
-                                .foregroundColor(.gray)
-                        }
-                        .padding(.horizontal)
+                        gradientView
                     }
+                    detailsInfoView(character: character)
                 }
-            } else if viewModel.isLoading {
-                ProgressView("Loading character...")
-                    .padding()
-            } else if let errorMessage = viewModel.errorMessage {
-                Text(errorMessage)
-                    .foregroundColor(.red)
-                    .padding()
             }
         }
-        .ignoresSafeArea(.all)
-        .task {
-            await viewModel.fetchCharacter()
+    }
+    
+    private func detailsInfoView(character: CharacterModel) -> some View {
+        Group {
+            Text(character.name)
+                .font(.largeTitle)
+                .bold()
+            
+            Text("Last know location: \n \(character.locationName)")
+                .font(.title3)
+                .foregroundColor(.gray)
+            
+            Text("First seen in: \n \(character.originName)")
+                .font(.title3)
+                .foregroundColor(.gray)
+            
+            Text("Status: \n \(character.status)")
+                .font(.title3)
+                .foregroundColor(.gray)
+            
+            Text("Species: \n \(character.species)")
+                .font(.title3)
+                .foregroundColor(.gray)
+            
+            Text("Gender: \n \(character.gender)")
+                .font(.title3)
+                .foregroundColor(.gray)
         }
+        .padding(.horizontal)
+    }
+    
+    private var gradientView: some View {
+        VStack {
+            Spacer()
+        }
+        .frame(maxWidth: .infinity)
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: gradientColors),
+                startPoint: .top,
+                endPoint: .center
+            )
+        )
+    }
+    
+    private var gradientColors: [Color] {
+        colorScheme == .dark ? [.black, .black.opacity(0.5), .clear] : [.white, .white.opacity(0.5), .clear]
     }
 }
 

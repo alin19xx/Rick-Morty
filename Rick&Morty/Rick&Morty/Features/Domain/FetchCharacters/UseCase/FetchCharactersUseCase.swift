@@ -46,13 +46,20 @@ final class DefaultFetchCharactersUseCase: FetchCharactersUseCaseProtocol {
                     gender: params.gender
                 )
         
-        let response = try await repository.fetchCharacters(with: repoParams)
-        
-        /// Extraemos de la URL del campo "next" la proxima pagina.
-        /// Otra opcion que seria igual de valida podria ser guardarse la url, pero como ya tenemos el endpoint montado, tiene mas sentido trabajar con el numero de pagina
-        nextPage = extractPageNumber(from: response.info.next)
-        
-        return response.results.map { $0.toDomain() }
+        do {
+            let response = try await repository.fetchCharacters(with: repoParams)
+            
+            /// Extraemos de la URL del campo "next" la proxima pagina.
+            /// Otra opcion que seria igual de valida podria ser guardarse la url, pero como ya tenemos el endpoint montado, tiene mas sentido trabajar con el numero de pagina
+            nextPage = extractPageNumber(from: response.info.next)
+            return response.results.map { $0.toDomain() }
+        } catch let error as NetworkError {
+            // Capturar y propagar errores específicos de red
+            throw error
+        } catch {
+            // Capturar y propagar cualquier otro error inesperado
+            throw NetworkError.networkError(error)
+        }
     }
     
     func resetPagination() {

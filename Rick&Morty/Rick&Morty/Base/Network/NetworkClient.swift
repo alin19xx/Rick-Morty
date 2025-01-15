@@ -30,10 +30,24 @@ class DefaultNetworkClient: NetworkClientProtocol {
         let requestInfo = logRequestWith(request)
         
         do {
-            let (data, _) = try await session.data(for: request)
+            let (data, response) = try await session.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse,
+                !(200...299).contains(httpResponse.statusCode) {
+                logger.log(message: "HTTP error for: \(requestInfo) with status code: \(httpResponse.statusCode)", level: .error)
+                throw NetworkError.httpError(statusCode: httpResponse.statusCode)
+            }
+            
+            guard !data.isEmpty else {
+                logger.log(message: "No data received from: \(requestInfo)", level: .error)
+                throw NetworkError.noData
+            }
+            
             let decodedResponse = try JSONDecoder().decode(T.self, from: data)
             logger.log(message: "Successful response from: \(requestInfo)", level: .info)
             return decodedResponse
+        } catch let error as NetworkError {
+            throw error
         } catch {
             logger.log(message: "Decoding error for: \(requestInfo) with error: \(error)", level: .error)
             throw NetworkError.decodingError(error)

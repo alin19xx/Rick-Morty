@@ -19,8 +19,12 @@ final class DefaultCharacterDetailRepository: CharacterDetailRepositoryProtocol 
     }
 
     func fetchCharacter(with id: Int) async throws -> CharacterDecodable {
-        let endpoint = CharacterDetailEndpoint(id: id)
-        let response: CharacterDecodable = try await networkClient.request(endpoint: endpoint)
-        return response
+        do {
+            let endpoint = CharacterDetailEndpoint(id: id)
+            let response: CharacterDecodable = try await networkClient.request(endpoint: endpoint)
+            return response
+        } catch let error as NetworkError {
+            throw error
+        }
     }
 }

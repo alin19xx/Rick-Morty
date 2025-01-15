@@ -13,7 +13,7 @@ final class CharactersViewModel: ObservableObject {
     @Published var characters: [CharacterCardModel] = []
     
     @Published var isLoading: Bool = false
-    @Published var errorMessage: String?
+    @Published var error: NetworkError?
     
     private let charactersUseCase: FetchCharactersUseCaseProtocol
     private var currentParams: CharactersUseCaseParameters
@@ -22,8 +22,6 @@ final class CharactersViewModel: ObservableObject {
     init(charactersUseCase: FetchCharactersUseCaseProtocol = DefaultFetchCharactersUseCase()) {
         self.charactersUseCase = charactersUseCase
         self.currentParams = CharactersUseCaseParameters()
-        
-        fetchInitialCharacters()
     }
     
     func fetchInitialCharacters() {
@@ -35,7 +33,6 @@ final class CharactersViewModel: ObservableObject {
     func fetchCharacters() async {
         guard !isLoading && hasMorePages else { return }
         isLoading = true
-        errorMessage = nil
         
         do {
             let newCharacters = try await charactersUseCase.execute(with: currentParams)
@@ -43,8 +40,10 @@ final class CharactersViewModel: ObservableObject {
             
             characters.append(contentsOf: newViewModels)
             hasMorePages = !newViewModels.isEmpty
+        } catch let error as NetworkError {
+            self.error = error
         } catch {
-            errorMessage = "Failed to load characters: \(error.localizedDescription)"
+            self.error = .networkError(error)
         }
         
         isLoading = false

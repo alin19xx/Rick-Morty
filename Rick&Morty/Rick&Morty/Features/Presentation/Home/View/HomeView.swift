@@ -38,6 +38,11 @@ struct HomeView: View {
                 .navigationDestination(for: Route.self) { route in
                     RouteResolver(route: route)
                 }
+                .errorAlert(error: $viewModel.error) {
+                    searchText = ""
+                    viewModel.fetchInitialCharacters()
+                }
+                .task { viewModel.fetchInitialCharacters() }
         }
     }
 }
