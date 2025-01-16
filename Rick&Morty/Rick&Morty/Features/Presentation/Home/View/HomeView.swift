@@ -42,8 +42,8 @@ struct HomeView: View {
                     searchText = ""
                     viewModel.fetchInitialCharacters()
                 }
-                .task { viewModel.fetchInitialCharacters() }
         }
+        .task { viewModel.fetchInitialCharacters() }
     }
 }
  
@@ -53,16 +53,22 @@ struct HomeView: View {
 extension HomeView {
     
     private var homeContent: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 16) {
-                ForEach(viewModel.characters) { character in
-                    CharacterCellView(character: character, onSelect: {
-                        navigationPath.append(.characterDetail(id: character.id))
-                    })
-                    .onAppear { prefetchIfNeeded(for: character) }
+        GeometryReader { geometry in
+            let cellWidth = geometry.size.width * 0.30
+            let cellHeight = cellWidth * 1.5
+
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 16) {
+                    ForEach(viewModel.characters, id: \.self) { character in
+                        CharacterCellView(character: character, onSelect: {
+                            navigationPath.append(.characterDetail(id: character.id))
+                        })
+                        .frame(width: cellWidth, height: cellHeight)
+                        .task { await prefetchIfNeeded(for: character) }
+                    }
                 }
+                .padding(.all, 8)
             }
-            .padding()
         }
     }
     
@@ -91,14 +97,12 @@ extension HomeView {
 
 extension HomeView {
     
-    private func prefetchIfNeeded(for character: CharacterCardModel) {
+    private func prefetchIfNeeded(for character: CharacterCardModel) async {
         guard let index = viewModel.characters.firstIndex(where: { $0.id == character.id }) else { return }
         
         let indexForTrigger = viewModel.characters.index(viewModel.characters.endIndex, offsetBy: -5)
         if index == indexForTrigger {
-            Task.detached {
-                await viewModel.fetchCharacters()
-            }
+            await viewModel.fetchCharacters()
         }
     }
     

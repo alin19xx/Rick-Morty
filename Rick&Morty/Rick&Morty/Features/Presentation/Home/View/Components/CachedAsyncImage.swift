@@ -25,14 +25,13 @@ struct CachedAsyncImage<Placeholder: View, Content: View>: View {
                     }
             }
         }
-        .animation(.default, value: loadedImage)
     }
     
     private func loadImage() {
         guard let imageURL = URL(string: url) else { return }
         
         if let cachedImage = ImageCache.shared.getImage(for: imageURL) {
-            loadedImage = cachedImage
+           loadedImage = cachedImage
         } else {
             Task {
                 let (data, _) = try await URLSession.shared.data(from: imageURL)

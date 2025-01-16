@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CharacterCardModel: Identifiable, Equatable {
+struct CharacterCardModel: Hashable {
     let id: Int
     let name: String
     let imageUrl: String
