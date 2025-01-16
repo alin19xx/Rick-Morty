@@ -33,7 +33,9 @@ enum LogLevel: String {
 
 class NetworkingLogger: RMLoggerProtocol {
     func log(message: String, level: LogLevel) {
+#if DEBUG
         let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .long)
         print("\(timestamp) 📡 [Networking] \(level.icon) [\(level.rawValue)] \(message)")
+#endif
     }
 }
