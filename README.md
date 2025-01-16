@@ -20,7 +20,10 @@ Proyecto Rick & Morty diseñado con clean architecture, MVVM y SwiftUI. La aplic
   - Mocking de repositorios para simular respuestas de la API.
   - Validación de la lógica de paginación y gestion de errores.
 
-### **5. Logger**
+### **5. Cacheo de imágenes**
+- Sistema de cacheo de imágenes (CachedAsyncImage) utilizando un singleton (ImageCache) basado en NSCache para optimizar la gestión y la carga de imágenes.
+
+### **6. Logger**
 - **Logger personalizado**:
   - Sistema de logging basado en niveles (`info`, `error`, `debug`, etc.).
   - Activado únicamente en el entorno `DEBUG`.
