@@ -54,10 +54,8 @@ final class DefaultFetchCharactersUseCase: FetchCharactersUseCaseProtocol {
             nextPage = extractPageNumber(from: response.info.next)
             return response.results.map { $0.toDomain() }
         } catch let error as NetworkError {
-            // Capturar y propagar errores específicos de red
             throw error
         } catch {
-            // Capturar y propagar cualquier otro error inesperado
             throw NetworkError.networkError(error)
         }
     }
