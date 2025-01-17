@@ -8,7 +8,7 @@
 import Foundation
 
 protocol CharactersRepositoryProtocol {
-    func fetchCharacters(with params: CharactersRepositoryParameters) async throws -> CharactersResponseDecodable
+    func fetchCharacters(with params: CharactersParametersProtocol) async throws -> CharactersResponseDecodable
 }
 
 final class DefaultCharacterListRepository: CharactersRepositoryProtocol {
@@ -18,7 +18,7 @@ final class DefaultCharacterListRepository: CharactersRepositoryProtocol {
         self.networkClient = networkClient
     }
 
-    func fetchCharacters(with params: CharactersRepositoryParameters) async throws -> CharactersResponseDecodable {
+    func fetchCharacters(with params: CharactersParametersProtocol) async throws -> CharactersResponseDecodable {
         do {
             let endpoint = CharactersEndpoint(params: params)
             let response: CharactersResponseDecodable = try await networkClient.request(endpoint: endpoint)

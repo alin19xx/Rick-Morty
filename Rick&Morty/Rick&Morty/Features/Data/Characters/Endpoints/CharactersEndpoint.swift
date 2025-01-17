@@ -8,9 +8,9 @@
 import Foundation
 
 struct CharactersEndpoint: Endpoint {
-    private let params: CharactersRepositoryParameters
+    private let params: CharactersParametersProtocol
     
-    init(params: CharactersRepositoryParameters) {
+    init(params: CharactersParametersProtocol) {
         self.params = params
     }
     

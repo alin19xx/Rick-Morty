@@ -39,3 +39,12 @@ class NetworkingLogger: RMLoggerProtocol {
 #endif
     }
 }
+
+class UILogger: RMLoggerProtocol {
+    func log(message: String, level: LogLevel) {
+#if DEBUG
+        let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .short, timeStyle: .long)
+        print("\(timestamp) 📱 [UI] \(level.icon) [\(level.rawValue)] \(message)")
+#endif
+    }
+}

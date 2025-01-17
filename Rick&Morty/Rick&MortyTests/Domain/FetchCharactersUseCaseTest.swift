@@ -17,9 +17,10 @@ final class FetchCharactersUseCaseTest: XCTestCase {
         
         do {
             // WHEN
-            let characters = try await useCase.execute(with: CharactersUseCaseParameters())
+            let (nextPage, characters) = try await useCase.execute(with: CharactersParameters())
             
             // THEN
+            XCTAssertEqual(nextPage, 2, "Next page should be 2")
             XCTAssertEqual(characters.count, 20, "Total characters in the mock should be 20")
             XCTAssertEqual(characters.last?.id, 20, "Character ID not match")
             XCTAssertEqual(characters.last?.name, "Ants in my Eyes Johnson", "Name not match")
@@ -28,7 +29,7 @@ final class FetchCharactersUseCaseTest: XCTestCase {
         }
     }
     
-    func testFetchCharactersUseCase_when_request_after_last_page() async {
+    func testFetchCharactersUseCase_when_request_last_page() async {
         // GIVEN
         let repository = CharactersRepositoryMock(data: CharactersLastPageMock.makeJsonMock())
         let useCase = DefaultFetchCharactersUseCase(repository: repository)
@@ -37,14 +38,12 @@ final class FetchCharactersUseCaseTest: XCTestCase {
         
         do {
             // WHEN
-            let charactersLastPage = try await useCase.execute(with: CharactersUseCaseParameters())
+            let (nextPage, charactersLastPage) = try await useCase.execute(with: CharactersParameters())
             allCharacters.append(contentsOf: charactersLastPage)
             
-            let charactersAfterLastPage = try await useCase.execute(with: CharactersUseCaseParameters())
-            allCharacters.append(contentsOf: charactersAfterLastPage)
-            
             // THEN
-            XCTAssertEqual(allCharacters.count, 6, "Total characters in the mock should be 6")
+            XCTAssertEqual(nextPage, nil, "Next page after the last page should be nil")
+            XCTAssertEqual(charactersLastPage.count, 6, "Total characters in the mock should be 6")
         } catch {
             XCTFail("Expected success but got error: \(error)")
         }
@@ -57,7 +56,7 @@ final class FetchCharactersUseCaseTest: XCTestCase {
         
         do {
             // WHEN
-            _ = try await useCase.execute(with: CharactersUseCaseParameters())
+            _ = try await useCase.execute(with: CharactersParameters())
             XCTFail("Expected failure but got success")
         } catch let error as NetworkError {
             // THEN

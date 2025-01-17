@@ -18,7 +18,7 @@ final class CharactersRepositoryMock: CharactersRepositoryProtocol {
         self.error = error
     }
     
-    func fetchCharacters(with params: CharactersRepositoryParameters) async throws -> CharactersResponseDecodable {
+    func fetchCharacters(with params: CharactersParametersProtocol) async throws -> CharactersResponseDecodable {
         if let data = data {
             let decoder = JSONDecoder()
             return try decoder.decode(CharactersResponseDecodable.self, from: data)

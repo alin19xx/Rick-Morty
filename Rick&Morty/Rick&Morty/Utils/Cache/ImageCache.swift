@@ -8,12 +8,10 @@
 import UIKit
 
 final class ImageCache {
-    /// Creamos un singleton porque en este caso, como en la vista de detalle
-    /// las urls de las imagenes son las mismas, al tener una sola instancia,
-    /// la carga sera instantanea
+    /// We use a singleton because, in this case, like in the detail view,
+    /// the image URLs are the same
     static let shared = ImageCache()
     
-    /// Evitamos que se puedan crear instancias nuevas
     private init() {}
     
     private let cache = NSCache<NSURL, UIImage>()
