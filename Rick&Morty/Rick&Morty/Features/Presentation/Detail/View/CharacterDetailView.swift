@@ -37,7 +37,10 @@ extension CharacterDetailView {
                 VStack(alignment: .leading, spacing: 16) {
                     ZStack {
                         CachedAsyncImage(url: character.imageUrl) {
-                            ProgressView()
+                            VStack {
+                                ProgressView()
+                                    .frame(minWidth: 200, minHeight: 200)
+                            }
                         } content: { image in
                             image
                                 .resizable()

@@ -9,6 +9,7 @@ import Foundation
 
 protocol NetworkClientProtocol {
     func request<T: Decodable>(endpoint: Endpoint) async throws -> T
+    func fetchImage(from url: URL) async throws -> Data
 }
 
 class DefaultNetworkClient: NetworkClientProtocol {
@@ -51,6 +52,25 @@ class DefaultNetworkClient: NetworkClientProtocol {
         } catch {
             logger.log(message: "Decoding error for: \(requestInfo) with error: \(error)", level: .error)
             throw NetworkError.decodingError(error)
+        }
+    }
+    
+    func fetchImage(from url: URL) async throws -> Data {
+        let request = URLRequest(url: url)
+        logger.log(message: "Fetching image from: \(url)", level: .info)
+        
+        do {
+            let (data, response) = try await session.data(for: request)
+            
+            if let httpResponse = response as? HTTPURLResponse, !(200...299).contains(httpResponse.statusCode) {
+                logger.log(message: "HTTP error for image URL: \(url), status code: \(httpResponse.statusCode)", level: .error)
+                throw NetworkError.httpError(statusCode: httpResponse.statusCode)
+            }
+            
+            return data
+        } catch {
+            logger.log(message: "Failed to fetch image from URL: \(url) with error: \(error)", level: .error)
+            throw NetworkError.networkError(error)
         }
     }
 }

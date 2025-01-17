@@ -22,7 +22,7 @@ final class CharactersViewModel: BaseViewModel {
     }
     
     func fetchInitialCharacters() async {
-        nextPage = 43
+        nextPage = 1
         await MainActor.run { characters = [] }
         await fetchCharacters()
     }
@@ -44,7 +44,8 @@ final class CharactersViewModel: BaseViewModel {
         } catch let error as NetworkError {
             switch error {
                 case .httpError(statusCode: 404):
-                if let name = currentParams.name, !name.isEmpty {
+                if let name = currentParams.name,
+                    !name.isEmpty, nextPage == 1 {
                     setError(error)
                 }
                 default:
