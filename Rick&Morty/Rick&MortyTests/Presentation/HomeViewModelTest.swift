@@ -105,4 +105,17 @@ final class HomeViewModelTest: XCTestCase {
         XCTAssertFalse(viewModel.characters.isEmpty, "Characters should not be empty after applying filters")
         XCTAssertEqual(viewModel.currentParams.status, "Alive", "The status parameter should be updated")
     }
+    
+    func testPaginationStops_afterLastPage() async {
+        // GIVEN
+        let mockUseCase = FetchCharactersUseCaseMock()
+        mockUseCase.result = (nextPage: nil, characters: [])
+        let viewModel = CharactersViewModel(charactersUseCase: mockUseCase)
+        
+        // WHEN
+        await viewModel.fetchCharacters()
+        
+        // THEN
+        XCTAssertNil(viewModel.nextPage, "Next page should be nil after the last page")
+    }
 }

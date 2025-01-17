@@ -8,7 +8,16 @@
 import Foundation
 
 protocol NetworkClientProtocol {
+    /// Sends an asynchronous HTTP request and decodes the response into a specific type.
+    /// - Parameter endpoint: The endpoint containing the request configuration (URL, method, headers, etc.).
+    /// - Returns: A decoded object of the specified type.
+    /// - Throws: A `NetworkError` if the request fails, the response status is invalid, or decoding fails.
     func request<T: Decodable>(endpoint: Endpoint) async throws -> T
+
+    /// Fetches image data from a given URL.
+    /// - Parameter url: The URL to fetch the image from.
+    /// - Returns: The raw image data.
+    /// - Throws: A `NetworkError` if the request fails or the response status is invalid.
     func fetchImage(from url: URL) async throws -> Data
 }
 
@@ -80,6 +89,9 @@ class DefaultNetworkClient: NetworkClientProtocol {
 
 extension DefaultNetworkClient {
     
+    /// Builds a URL from the given `Endpoint`.
+    /// - Parameter endpoint: The endpoint containing the base path, path, and query items for the request.
+    /// - Returns: A fully constructed `URL` or `nil` if the URL is invalid.
     private func buildURL(for endpoint: Endpoint) -> URL? {
         var components = URLComponents(string: endpoint.basePath)
         components?.path = endpoint.path
@@ -87,6 +99,11 @@ extension DefaultNetworkClient {
         return components?.url
     }
     
+    /// Creates a `URLRequest` using the provided `Endpoint` and `URL`.
+    /// - Parameters:
+    ///   - endpoint: The endpoint containing HTTP method, headers, and body parameters.
+    ///   - url: The constructed `URL` for the request.
+    /// - Returns: A configured `URLRequest` object.
     private func createURLRequest(for endpoint: Endpoint, with url: URL) -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = endpoint.method.rawValue
@@ -97,6 +114,9 @@ extension DefaultNetworkClient {
         return request
     }
     
+    /// Logs details about the given `URLRequest` for debugging purposes.
+    /// - Parameter request: The `URLRequest` to log.
+    /// - Returns: A string containing the formatted log message.
     private func logRequestWith(_ request: URLRequest) -> String {
         
         let safeUrlString = request.url?.absoluteString ?? "Invalid URL"

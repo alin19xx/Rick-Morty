@@ -7,7 +7,14 @@
 
 import Foundation
 
-final class CharacterDetailViewModel: BaseViewModel {
+protocol CharacterDetailViewModelProtocol {
+    var character: CharacterModel? { get }
+    var id: Int { get }
+    
+    func fetchCharacter() async
+}
+
+final class CharacterDetailViewModel: BaseViewModel, CharacterDetailViewModelProtocol {
     
     @Published var character: CharacterModel?
     

@@ -9,6 +9,7 @@ import SwiftUI
 
 struct CharacterDetailView: View {
     @Environment(\.colorScheme) var colorScheme
+    @Environment(\.dismiss) var dismiss
     
     @StateObject var viewModel: CharacterDetailViewModel
     
@@ -20,7 +21,9 @@ struct CharacterDetailView: View {
         ZStack {
             contentView
         }
-        .errorAlert(error: $viewModel.error)
+        .errorAlert(error: $viewModel.error, onDismiss: {
+            dismiss()
+        })
         .task { await viewModel.fetchCharacter() }
     }
 }
@@ -56,30 +59,21 @@ extension CharacterDetailView {
     }
     
     private func detailsInfoView(character: CharacterModel) -> some View {
-        Group {
-            Text(character.name)
-                .font(.largeTitle)
-                .bold()
-            
-            Text("Last know location: \n \(character.locationName)")
-                .font(.title3)
-                .foregroundColor(.gray)
-            
-            Text("First seen in: \n \(character.originName)")
-                .font(.title3)
-                .foregroundColor(.gray)
-            
-            Text("Status: \n \(character.status)")
-                .font(.title3)
-                .foregroundColor(.gray)
-            
-            Text("Species: \n \(character.species)")
-                .font(.title3)
-                .foregroundColor(.gray)
-            
-            Text("Gender: \n \(character.gender)")
-                .font(.title3)
-                .foregroundColor(.gray)
+        let details = [
+            ("Name", character.name),
+            ("Last known location", character.locationName),
+            ("First seen in", character.originName),
+            ("Status", character.status),
+            ("Species", character.species),
+            ("Gender", character.gender)
+        ]
+        
+        return ForEach(details, id: \.0) { detail in
+            VStack(alignment: .leading, spacing: 8) {
+                Text("\(detail.0): \n \(detail.1)")
+                    .font(.title3)
+                    .foregroundColor(.gray)
+            }
         }
         .padding(.horizontal)
     }
@@ -104,5 +98,7 @@ extension CharacterDetailView {
 }
 
 #Preview {
-    CharacterDetailView(id: 1)
+    NavigationView {
+        CharacterDetailView(id: 1)
+    }
 }

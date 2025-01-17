@@ -14,7 +14,22 @@ struct CachedAsyncImage<Placeholder: View, Content: View>: View {
     
     @State private var loadedImage: UIImage?
     
-    private let logger: RMLoggerProtocol = UILogger()
+    private let networkClient: NetworkClientProtocol
+    private let logger: RMLoggerProtocol
+    
+    init(
+        url: String,
+        networkClient: NetworkClientProtocol = DefaultNetworkClient(),
+        logger: RMLoggerProtocol = UILogger(),
+        @ViewBuilder placeholder: @escaping () -> Placeholder,
+        @ViewBuilder content: @escaping (Image) -> Content
+    ) {
+        self.url = url
+        self.networkClient = networkClient
+        self.logger = logger
+        self.placeholder = placeholder
+        self.content = content
+    }
     
     var body: some View {
         Group {
@@ -25,6 +40,7 @@ struct CachedAsyncImage<Placeholder: View, Content: View>: View {
                     .task { await loadImage() }
             }
         }
+        .animation(.default, value: loadedImage)
     }
     
     private func loadImage() async {
@@ -36,7 +52,7 @@ struct CachedAsyncImage<Placeholder: View, Content: View>: View {
         }
         
         do {
-            let data = try await DefaultNetworkClient().fetchImage(from: imageURL)
+            let data = try await networkClient.fetchImage(from: imageURL)
             if let uiImage = UIImage(data: data) {
                 ImageCache.shared.saveImage(uiImage, for: imageURL)
                 

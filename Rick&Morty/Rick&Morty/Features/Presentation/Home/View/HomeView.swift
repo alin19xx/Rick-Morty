@@ -63,6 +63,7 @@ extension HomeView {
                     }
                 }
                 .padding(.all, 8)
+                .animation(.easeInOut, value: viewModel.characters)
             }
         }
     }

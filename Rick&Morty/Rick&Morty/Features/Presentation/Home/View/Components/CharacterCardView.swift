@@ -15,38 +15,51 @@ struct CharacterCellView: View {
     
     var body: some View {
         ZStack {
-            CachedAsyncImage(url: character.imageUrl,
-                             placeholder: {
-                ProgressView()
-            }, content: { image in
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            })
-            
-            VStack {
-                Spacer()
-                Text(character.name)
-                    .font(.headline)
-                    .lineLimit(3)
-                    .padding(.bottom, 8)
-                    .padding(.horizontal, 6)
-                
-            }
-            .frame(maxWidth: .infinity)
-            .background(
-                LinearGradient(
-                    gradient: Gradient(colors: gradientColors),
-                    startPoint: .bottom,
-                    endPoint: .center
-                )
-            )
-            .onTapGesture { onSelect() }
+            cardImage
+            overlay
         }
         .background(Color(.systemBackground))
         .cornerRadius(10)
         .shadow(radius: 5)
         .padding(.horizontal, 8)
+    }
+}
+
+
+// MARK: - Accessory Views
+
+extension CharacterCellView {
+    
+    private var cardImage: some View {
+        CachedAsyncImage(url: character.imageUrl,
+                         placeholder: {
+            ProgressView()
+        }, content: { image in
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+        })
+    }
+    
+    private var overlay: some View {
+        VStack {
+            Spacer()
+            Text(character.name)
+                .font(.headline)
+                .lineLimit(3)
+                .padding(.bottom, 8)
+                .padding(.horizontal, 6)
+            
+        }
+        .frame(maxWidth: .infinity)
+        .background(
+            LinearGradient(
+                gradient: Gradient(colors: gradientColors),
+                startPoint: .bottom,
+                endPoint: .center
+            )
+        )
+        .onTapGesture { onSelect() }
     }
     
     private var gradientColors: [Color] {
@@ -55,6 +68,13 @@ struct CharacterCellView: View {
 }
 
 #Preview {
-    CharacterCellView(character: .init(id: 1, name: "Morty Smith", imageUrl: "https://rickandmortyapi.com/api/character/avatar/1.jpeg"), onSelect: {})
+    CharacterCellView(
+        character: .init(
+            id: 1,
+            name: "Morty Smith",
+            imageUrl: "https://rickandmortyapi.com/api/character/avatar/1.jpeg"
+        ),
+        onSelect: {
+        })
         .frame(width: 150, height: 200)
 }
