@@ -12,7 +12,7 @@ final class FetchCharactersUseCaseTest: XCTestCase {
     
     func testFetchCharactersUseCase_when_success() async {
         // GIVEN
-        let repository = CharactersSuccessMock(data: CharactersMock.makeJsonMock())
+        let repository = CharactersRepositoryMock(data: CharactersMock.makeJsonMock())
         let useCase = DefaultFetchCharactersUseCase(repository: repository)
         
         do {
@@ -30,7 +30,7 @@ final class FetchCharactersUseCaseTest: XCTestCase {
     
     func testFetchCharactersUseCase_when_request_after_last_page() async {
         // GIVEN
-        let repository = CharactersSuccessMock(data: CharactersLastPageMock.makeJsonMock())
+        let repository = CharactersRepositoryMock(data: CharactersLastPageMock.makeJsonMock())
         let useCase = DefaultFetchCharactersUseCase(repository: repository)
         
         var allCharacters: [CharacterEntity] = []
@@ -52,7 +52,7 @@ final class FetchCharactersUseCaseTest: XCTestCase {
     
     func testFetchCharactersUseCase_when_failure() async {
         // GIVEN
-        let repository = CharactersFailureMock(error: .httpError(statusCode: 404))
+        let repository = CharactersRepositoryMock(error: .httpError(statusCode: 404))
         let useCase = DefaultFetchCharactersUseCase(repository: repository)
         
         do {

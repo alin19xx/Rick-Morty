@@ -53,6 +53,7 @@ final class CharactersViewModel: ObservableObject {
         if params != currentParams {
             currentParams = params
             fetchInitialCharacters()
+            hasMorePages = true
         }
     }
 }

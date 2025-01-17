@@ -12,7 +12,7 @@ final class FetchCharacterDetailUseCaseTest: XCTestCase {
     
     func testFetchCharactrerDetail_when_success() async {
         // GIVEN
-        let repository = CharacterDetailSuccessMock(data: CharacterDetailMock.makeJsonMock())
+        let repository = CharacterDetailRepositoryMock(data: CharacterDetailMock.makeJsonMock())
         let useCase = DefaultFetchCharacterDetailUseCase(repository: repository)
         
         do {
@@ -29,7 +29,7 @@ final class FetchCharacterDetailUseCaseTest: XCTestCase {
     
     func testCharacterDetail_when_Failure() async {
         // GIVEN
-        let repository = CharacterDetailFailureMock(error: .httpError(statusCode: 404))
+        let repository = CharacterDetailRepositoryMock(error: .httpError(statusCode: 404))
         let useCase = DefaultFetchCharacterDetailUseCase(repository: repository)
         
         do {

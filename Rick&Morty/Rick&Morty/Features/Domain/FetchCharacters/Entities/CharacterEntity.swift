@@ -21,7 +21,7 @@ struct CharacterEntity {
 
 extension CharacterEntity {
     func toHomeModel() -> CharacterCardModel {
-        return CharacterCardModel(
+        CharacterCardModel(
             id: id,
             name: name,
             imageUrl: imageUrl
@@ -29,7 +29,7 @@ extension CharacterEntity {
     }
     
     func toDetailViewModel() -> CharacterModel {
-        return CharacterModel(
+        CharacterModel(
             id: id,
             name: name,
             status: status,
