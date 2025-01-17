@@ -8,15 +8,12 @@
 import Foundation
 
 @MainActor
-final class CharacterDetailViewModel: ObservableObject {
+final class CharacterDetailViewModel: BaseViewModel {
     
     @Published var character: CharacterModel?
     
     var id: Int
     private let detailUseCase: FetchCharacterDetailUseCaseProtocol
-    
-    @Published var isLoading: Bool = false
-    @Published var error: NetworkError?
     
     init(id: Int,
          detailUseCase: FetchCharacterDetailUseCaseProtocol = DefaultFetchCharacterDetailUseCase()) {
@@ -25,17 +22,18 @@ final class CharacterDetailViewModel: ObservableObject {
     }
     
     func fetchCharacter() async {
-        isLoading = true
+        setLoading(true)
         
         do {
             let characterEntity = try await detailUseCase.execute(with: id)
             character = characterEntity.toDetailViewModel()
         } catch let error as NetworkError {
+            setError(error)
             self.error = error
         } catch {
-            self.error = .networkError(error)
+            setError(.networkError(error))
         }
         
-        isLoading = false
+        setLoading(false)
     }
 }

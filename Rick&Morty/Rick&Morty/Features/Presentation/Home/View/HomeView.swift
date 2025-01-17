@@ -31,19 +31,14 @@ struct HomeView: View {
                 .onChange(of: selectedGender, { applyFilters() })
                 .onChange(of: selectedStatus, { applyFilters() })
                 .onChange(of: searchText, {
-                    if searchText.isEmpty {
-                        applyFilters()
-                    }
+                    if searchText.isEmpty { applyFilters() }
                 })
                 .navigationDestination(for: Route.self) { route in
                     RouteResolver(route: route)
                 }
-                .errorAlert(error: $viewModel.error) {
-                    searchText = ""
-                    viewModel.fetchInitialCharacters()
-                }
+                .errorAlert(error: $viewModel.error) { searchText = "" }
         }
-        .task { viewModel.fetchInitialCharacters() }
+        .task { await viewModel.fetchInitialCharacters() }
     }
 }
  
@@ -107,7 +102,7 @@ extension HomeView {
     }
     
     private func applyFilters() {
-        var params = CharactersUseCaseParameters()
+        var params = CharactersParameters()
         
         if selectedStatus != .any {
             params.status = selectedStatus.rawValue.lowercased()
@@ -121,7 +116,7 @@ extension HomeView {
             params.name = searchText
         }
         
-        viewModel.applyFilters(params)
+        Task { await viewModel.applyFilters(params) }
     }
 }
 

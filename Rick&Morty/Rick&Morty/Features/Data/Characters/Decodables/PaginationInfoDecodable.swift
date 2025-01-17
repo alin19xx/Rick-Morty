@@ -7,15 +7,6 @@
 
 import Foundation
 
-/*
- "info": {
-     "count": 826,
-     "pages": 42,
-     "next": "https://rickandmortyapi.com/api/character?page=2",
-     "prev": null
- }
- */
-
 struct PaginationInfoDecodable: Codable {
     let count: Int
     let pages: Int

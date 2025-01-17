@@ -7,53 +7,57 @@
 
 import Foundation
 
-@MainActor
-final class CharactersViewModel: ObservableObject {
+final class CharactersViewModel: BaseViewModel {
     
     @Published var characters: [CharacterCardModel] = []
     
-    @Published var isLoading: Bool = false
-    @Published var error: NetworkError?
-    
     private let charactersUseCase: FetchCharactersUseCaseProtocol
-    private var currentParams: CharactersUseCaseParameters
-    private var hasMorePages: Bool = true
+    private var currentParams: CharactersParameters
+    private var nextPage: Int?
     
     init(charactersUseCase: FetchCharactersUseCaseProtocol = DefaultFetchCharactersUseCase()) {
         self.charactersUseCase = charactersUseCase
-        self.currentParams = CharactersUseCaseParameters()
+        self.currentParams = CharactersParameters()
+        self.nextPage = 1
     }
     
-    func fetchInitialCharacters() {
-        charactersUseCase.resetPagination()
-        characters = []
-        Task { await fetchCharacters() }
+    func fetchInitialCharacters() async {
+        nextPage = 1
+        await MainActor.run { characters = [] }
+        await fetchCharacters()
     }
     
     func fetchCharacters() async {
-        guard !isLoading && hasMorePages else { return }
-        isLoading = true
+        guard !isLoading,
+              let page = nextPage else { return }
+        setLoading(true)
         
         do {
-            let newCharacters = try await charactersUseCase.execute(with: currentParams)
-            let newViewModels = newCharacters.map { $0.toHomeModel() }
-            
-            characters.append(contentsOf: newViewModels)
-            hasMorePages = !newViewModels.isEmpty
+            currentParams.page = page
+             let (newNextPage, newCharacters) = try await charactersUseCase.execute(with: currentParams)
+
+            await MainActor.run {
+                let newViewModels = newCharacters.map { $0.toHomeModel() }
+                characters.append(contentsOf: newViewModels)
+                nextPage = newNextPage
+            }
         } catch let error as NetworkError {
-            self.error = error
+            switch error {
+                case .httpError(statusCode: 404): break
+                default:
+                    setError(error)
+            }
         } catch {
-            self.error = .networkError(error)
+            setError(.networkError(error))
         }
         
-        isLoading = false
+        setLoading(false)
     }
     
-    func applyFilters(_ params: CharactersUseCaseParameters) {
+    func applyFilters(_ params: CharactersParameters) async {
         if params != currentParams {
             currentParams = params
-            fetchInitialCharacters()
-            hasMorePages = true
+            await fetchInitialCharacters()
         }
     }
 }
