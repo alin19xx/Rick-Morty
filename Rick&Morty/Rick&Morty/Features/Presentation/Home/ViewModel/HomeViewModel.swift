@@ -7,13 +7,23 @@
 
 import Foundation
 
-final class CharactersViewModel: BaseViewModel {
+protocol CharactersViewModelProtocol {
+    var characters: [CharacterCardModel] { get }
+    var currentParams: CharactersParameters { get set }
+    var nextPage: Int? { get set }
+    
+    func fetchInitialCharacters() async
+    func fetchCharacters() async
+    func applyFilters(_ params: CharactersParameters) async
+}
+
+final class CharactersViewModel: BaseViewModel, CharactersViewModelProtocol {
     
     @Published var characters: [CharacterCardModel] = []
     
     private let charactersUseCase: FetchCharactersUseCaseProtocol
-    private var currentParams: CharactersParameters
-    private var nextPage: Int?
+    var currentParams: CharactersParameters
+    var nextPage: Int?
     
     init(charactersUseCase: FetchCharactersUseCaseProtocol = DefaultFetchCharactersUseCase()) {
         self.charactersUseCase = charactersUseCase
@@ -42,15 +52,7 @@ final class CharactersViewModel: BaseViewModel {
                 nextPage = newNextPage
             }
         } catch let error as NetworkError {
-            switch error {
-                case .httpError(statusCode: 404):
-                if let name = currentParams.name,
-                    !name.isEmpty, nextPage == 1 {
-                    setError(error)
-                }
-                default:
-                    setError(error)
-            }
+            handleError(error)
         } catch {
             setError(.networkError(error))
         }
@@ -62,6 +64,20 @@ final class CharactersViewModel: BaseViewModel {
         if params != currentParams {
             currentParams = params
             await fetchInitialCharacters()
+        }
+    }
+    
+    private func handleError(_ error: NetworkError) {
+        switch error {
+            case .httpError(statusCode: 404):
+            if let name = currentParams.name,
+               !name.isEmpty {
+                setError(error)
+            } else if nextPage == 1, characters.isEmpty {
+                setError(error)
+            }
+            default:
+                setError(error)
         }
     }
 }

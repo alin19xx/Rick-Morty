@@ -7,7 +7,6 @@
 
 import Foundation
 
-@MainActor
 final class CharacterDetailViewModel: BaseViewModel {
     
     @Published var character: CharacterModel?
@@ -26,10 +25,11 @@ final class CharacterDetailViewModel: BaseViewModel {
         
         do {
             let characterEntity = try await detailUseCase.execute(with: id)
-            character = characterEntity.toDetailViewModel()
+            await MainActor.run {
+                character = characterEntity.toDetailViewModel()
+            }
         } catch let error as NetworkError {
             setError(error)
-            self.error = error
         } catch {
             setError(.networkError(error))
         }
