@@ -1,29 +1,29 @@
 # Rick-Morty
 
-Proyecto Rick & Morty diseñado con clean architecture, MVVM y SwiftUI. La aplicación muestra un listado de los personajes de la serie, con filtros y buscador por nombre, además de la respectiva pantalla de detalle para cada personaje.
+This project is a Rick & Morty app designed with Clean Architecture, MVVM, and SwiftUI. The application displays a list of characters from the show, including filtering options and a name search feature. It also includes a detailed view for each character.
 
 ### **1. Data**
-- **Repositorios** para interactuar con la API de Rick & Morty. (https://rickandmortyapi.com/)
-- Módulo de red implementado a través de un `NetworkClient` y gestión de errores.
-- **Async/Await**: Utilizado para realizar llamadas asíncronas de red.
+- **Repositories** Handle interactions with the Rick & Morty API. (https://rickandmortyapi.com/)
+- **Networking Module** Built with a NetworkClient and error handling.
+- **Async/Await**: Used for asynchronous network calls.
 
 ### **2. Domain**
-- **UseCase** para obtener el listado de personajes, con lógica de paginación y filtros.
-- **UseCase** para obtener la información detallada de cada personaje.
-- **Paginación**: Scroll infinito implementado con prefetching para anticipar la carga de datos.
+- **FetchCharactersUseCase** Fetch the list of characters, with parameters for pagination and filtering.
+- **FetchCharacterDetailUseCase** Fetch detailed information for a specific character.
 
 ### **3. Presentation**
-- **ViewModels** diseñados con el patrón `ObservableObject` para escuchar cambios en las propiedades utilizando `@Published`.
+- **ViewModels** Designed using the `ObservableObject` pattern to notify views of changes using `@Published` properties.
+- **Pagination**: Infinite scrolling implemented using prefetching to load data in advance.
 
 ### **4. Testing**
-- Pruebas unitarias implementadas para las capas **Domain** y **Data**:
-  - Mocking de repositorios para simular respuestas de la API.
-  - Validación de la lógica de paginación y gestion de errores.
+-  Unit tests are implemented for the Domain, Data, and Presentation layers, including ViewModels:
+  - Mocks for UseCases and Repositories were created to test ViewModels, focusing on pagination and error handling.
+  - Error Handling Tests: Validate the 404 error is handled properly.
 
-### **5. Cacheo de imágenes**
-- Sistema de cacheo de imágenes (CachedAsyncImage) utilizando un singleton (ImageCache) basado en NSCache para optimizar la gestión y la carga de imágenes.
+### **5. Image Caching**
+- A custom image caching system using a singleton (ImageCache) based on NSCache for optimized image loading and a reusable CachedAsyncImage component.
+- Prevents unnecessary network requests and improves performance.
 
 ### **6. Logger**
-- **Logger personalizado**:
-  - Sistema de logging basado en niveles (`info`, `error`, `debug`, etc.).
-  - Activado únicamente en el entorno `DEBUG`.
+- Supports logging levels (info, error, debug, etc.).
+- Enabled only in `DEBUG` builds.
